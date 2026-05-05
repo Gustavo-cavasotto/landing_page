@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -37,6 +39,37 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
+
+    /* ─── CUSTOM CURSOR & WEBGL ─── */
+    @media (pointer: fine) {
+      body, a, button, .btn, .project-card, .skill-card, .lang-btn, .nav-logo { cursor: none !important; }
+    }
+    #cursor-dot, #cursor-outline {
+      position: fixed;
+      top: 0; left: 0;
+      border-radius: 50%;
+      z-index: 9999;
+      pointer-events: none;
+      display: none;
+    }
+    @media (pointer: fine) {
+      #cursor-dot, #cursor-outline { display: block; }
+    }
+    #cursor-dot {
+      width: 8px; height: 8px;
+      background-color: var(--accent2);
+    }
+    #cursor-outline {
+      width: 40px; height: 40px;
+      border: 2px solid rgba(6, 182, 212, 0.5);
+    }
+    #webgl-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
 
     /* ─── NAV ─── */
     nav {
@@ -367,46 +400,106 @@
     }
 
     .skill-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 16px;
       padding: 1.75rem;
-      transition: border-color .2s, transform .2s;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .3s ease;
     }
 
-    .skill-card:hover { border-color: rgba(59,130,246,.3); transform: translateY(-3px); }
+    .skill-card:hover { transform: translateY(-3px); }
+
+    .skill-card::before,
+    .skill-card::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+
+    .skill-card::before {
+      background: radial-gradient(800px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(var(--rgb), 0.08), transparent 40%);
+      z-index: 1;
+    }
+
+    .skill-card::after {
+      background: radial-gradient(600px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(var(--rgb), 0.5), transparent 40%);
+      z-index: 2;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      padding: 1px;
+    }
+
+    .skills-grid:hover .skill-card::before,
+    .skills-grid:hover .skill-card::after {
+      opacity: 1;
+    }
+
+    .skill-card > * {
+      z-index: 3;
+      position: relative;
+    }
 
     .skill-card-icon {
-      width: 44px; height: 44px;
-      border-radius: 10px;
+      width: 48px; height: 48px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
-      margin-bottom: 1rem;
+      font-size: 1.6rem;
+      margin-bottom: 1.2rem;
+      background: rgba(var(--rgb), 0.15);
+      border: 1px solid rgba(var(--rgb), 0.3);
+      box-shadow: 0 0 20px rgba(var(--rgb), 0.1) inset, 0 4px 15px rgba(var(--rgb), 0.15);
+      color: rgba(var(--rgb), 0.9);
     }
 
-    .icon-blue   { background: rgba(59,130,246,.15); }
-    .icon-purple { background: rgba(139,92,246,.15); }
-    .icon-cyan   { background: rgba(6,182,212,.15); }
-    .icon-green  { background: rgba(34,197,94,.15); }
+    .skill-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; color: #fff; }
 
-    .skill-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .75rem; }
-
-    .tech-badges { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .tech-badges { display: flex; flex-wrap: wrap; gap: .6rem; }
 
     .badge {
-      padding: .3rem .7rem;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 6px;
-      font-size: .75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: .4rem .85rem;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      font-size: .78rem;
       font-weight: 500;
       color: var(--muted);
-      transition: all .2s;
+      transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .badge:hover { background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.3); color: var(--accent2); }
+    .badge i {
+      font-size: 1.05rem;
+      opacity: 0.75;
+      filter: grayscale(100%);
+      transition: all .3s ease;
+    }
+
+    .badge:hover {
+      background: rgba(var(--rgb), 0.15);
+      border-color: rgba(var(--rgb), 0.5);
+      color: #fff;
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 15px rgba(var(--rgb), 0.2);
+    }
+
+    .badge:hover i {
+      opacity: 1;
+      filter: grayscale(0%);
+    }
 
     .lang-grid {
       display: grid;
@@ -436,53 +529,192 @@
 
     .projects-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
     }
 
+    .project-card.featured {
+      grid-column: span 2;
+      padding: 0;
+      gap: 0;
+    }
+
+    .proj-preview {
+      position: relative;
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+      overflow: hidden;
+      aspect-ratio: 16 / 8;
+      z-index: 2;
+    }
+
+    .proj-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      transition: transform .6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .project-card.featured:hover .proj-preview img {
+      transform: scale(1.03);
+    }
+
+    .proj-preview::after {
+      content: "";
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60%;
+      background: linear-gradient(to top, rgba(2, 4, 8, 0.95), transparent);
+      pointer-events: none;
+    }
+
+    .proj-featured-body {
+      padding: 1.5rem 1.75rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      z-index: 2;
+      position: relative;
+    }
+
+    .proj-type {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: .3rem .75rem;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(var(--rgb), 1);
+      background: rgba(var(--rgb), 0.1);
+      border: 1px solid rgba(var(--rgb), 0.3);
+      border-radius: 6px;
+    }
+
+    .proj-featured-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    .proj-featured-title a {
+      color: var(--text);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .proj-featured-title a:hover {
+      color: rgb(var(--rgb));
+    }
+
+    .proj-featured-title .proj-link-arrow {
+      font-size: 1rem;
+      color: var(--muted);
+      transition: color .2s, transform .2s;
+    }
+
+    .project-card.featured:hover .proj-link-arrow {
+      color: rgb(var(--rgb));
+      transform: translate(2px, -2px);
+    }
+
+    .proj-featured-desc {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
     .project-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 16px;
       padding: 1.75rem;
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      transition: border-color .2s, transform .2s;
+      transition: transform .3s ease;
       position: relative;
       overflow: hidden;
     }
 
+    /* Spotlight glow (background) */
+    .project-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+      background: radial-gradient(700px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(var(--rgb), 0.06), transparent 40%);
+      z-index: 0;
+    }
+
+    /* Spotlight border */
     .project-card::after {
-      content: '';
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+      background: radial-gradient(500px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(var(--rgb), 0.45), transparent 40%);
+      z-index: 1;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      padding: 1px;
+    }
+
+    .projects-grid:hover .project-card::before,
+    .projects-grid:hover .project-card::after {
+      opacity: 1;
+    }
+
+    .project-card:hover { transform: translateY(-4px); }
+
+    .project-card > * {
+      z-index: 2;
+      position: relative;
+    }
+
+    /* Gradient top bar on hover */
+    .project-card .proj-gradient-bar {
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 2px;
+      background: var(--gradient-proj);
       opacity: 0;
-      transition: opacity .2s;
+      transition: opacity .3s, height .3s;
+      z-index: 3;
     }
-
-    .project-card:hover { border-color: rgba(59,130,246,.35); transform: translateY(-4px); }
-    .project-card:hover::after { opacity: 1; }
-
-    .proj-accent-blue::after   { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
-    .proj-accent-purple::after { background: linear-gradient(90deg, #8b5cf6, #3b82f6); }
-    .proj-accent-cyan::after   { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
-    .proj-accent-green::after  { background: linear-gradient(90deg, #22c55e, #06b6d4); }
-    .proj-accent-orange::after { background: linear-gradient(90deg, #f59e0b, #ef4444); }
-    .proj-accent-pink::after   { background: linear-gradient(90deg, #ec4899, #8b5cf6); }
-    .proj-accent-navy::after   { background: linear-gradient(90deg, #1c4e80, #3b82f6); }
+    .project-card:hover .proj-gradient-bar {
+      opacity: 1;
+      height: 3px;
+    }
 
     .proj-header { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
 
     .proj-icon {
-      width: 42px; height: 42px;
-      border-radius: 10px;
+      width: 46px; height: 46px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       flex-shrink: 0;
+      background: rgba(var(--rgb), 0.12);
+      border: 1px solid rgba(var(--rgb), 0.25);
+      box-shadow: 0 0 15px rgba(var(--rgb), 0.08) inset;
     }
 
     .proj-company {
@@ -496,7 +728,7 @@
       white-space: nowrap;
     }
 
-    .proj-title { font-size: 1rem; font-weight: 700; line-height: 1.3; }
+    .proj-title { font-size: 1.05rem; font-weight: 700; line-height: 1.3; }
 
     .proj-desc { font-size: .85rem; color: var(--muted); line-height: 1.7; flex: 1; }
 
@@ -509,11 +741,17 @@
     .proj-metric {
       font-size: .72rem;
       font-weight: 700;
-      padding: .25rem .6rem;
-      border-radius: 6px;
-      background: rgba(34,211,238,.08);
-      border: 1px solid rgba(34,211,238,.2);
-      color: var(--green);
+      padding: .3rem .7rem;
+      border-radius: 8px;
+      background: rgba(var(--rgb), 0.08);
+      border: 1px solid rgba(var(--rgb), 0.25);
+      color: rgb(var(--rgb));
+      transition: all .3s ease;
+    }
+
+    .project-card:hover .proj-metric {
+      background: rgba(var(--rgb), 0.15);
+      box-shadow: 0 2px 12px rgba(var(--rgb), 0.15);
     }
 
     .proj-tech {
@@ -521,7 +759,16 @@
       flex-wrap: wrap;
       gap: .4rem;
       padding-top: .75rem;
-      border-top: 1px solid var(--card-border);
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+
+    @media (max-width: 900px) {
+      .projects-grid { grid-template-columns: repeat(2, 1fr); }
+      .project-card.featured { grid-column: span 2; }
+    }
+    @media (max-width: 640px) {
+      .projects-grid { grid-template-columns: 1fr; }
+      .project-card.featured { grid-column: span 1; }
     }
 
     /* ─── EXPERIENCE ─── */
@@ -615,13 +862,19 @@
     .exp-highlights li {
       font-size: .85rem;
       color: var(--muted);
-      display: flex;
-      gap: .6rem;
-      align-items: flex-start;
+      position: relative;
+      padding-left: 1.1rem;
       line-height: 1.6;
+      margin-bottom: .25rem;
     }
 
-    .exp-highlights li::before { content: '▸'; color: var(--accent); flex-shrink: 0; margin-top: .05rem; }
+    .exp-highlights li::before { 
+      content: '▸'; 
+      color: var(--accent); 
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
     .exp-highlights li strong { color: var(--text); font-weight: 600; }
 
     .exp-tech {
@@ -745,8 +998,19 @@
     }
 
     @media (max-width: 640px) {
-      nav { padding: .85rem 1.25rem; flex-wrap: wrap; gap: .75rem; }
-      .nav-center { order: 3; width: 100%; justify-content: center; gap: 1rem; }
+      nav { padding: .75rem 1rem; flex-wrap: wrap; gap: .5rem; }
+      .nav-center { 
+        order: 3; 
+        width: 100%; 
+        justify-content: flex-start; 
+        gap: 1.2rem; 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        padding-bottom: .25rem;
+      }
+      .nav-center::-webkit-scrollbar { display: none; }
+      .nav-center a { font-size: .8rem; white-space: nowrap; }
       .container { padding: 0 1.25rem; }
       .hero-stats { gap: .75rem; justify-content: center; }
       .stat-card { min-width: 110px; padding: .85rem 1.1rem; }
@@ -756,21 +1020,22 @@
       .timeline-item::before { left: -1.9rem; }
     }
 
-    /* ─── FADE-IN ─── */
+    /* ─── FADE-IN (Animações via GSAP) ─── */
     .fade-in {
       opacity: 0;
-      transform: translateY(24px);
-      transition: opacity .6s ease, transform .6s ease;
     }
 
-    .fade-in.visible { opacity: 1; transform: translateY(0); }
-
     /* ─── LANG TRANSITION ─── */
-    [data-i18n] { transition: opacity .15s ease; }
+    /* Removida a transition de opacity para não conflitar com GSAP */
     .lang-switching [data-i18n] { opacity: 0; }
   </style>
 </head>
 <body>
+
+  <!-- WebGL Background & Custom Cursor -->
+  <canvas id="webgl-canvas"></canvas>
+  <div id="cursor-outline"></div>
+  <div id="cursor-dot"></div>
 
   <div class="blobs" aria-hidden="true">
     <div class="blob blob-1"></div>
@@ -816,8 +1081,7 @@
           </p>
 
           <p class="hero-desc" data-i18n="hero.desc">
-            Especialista em arquiteturas escaláveis, APIs de alta performance e interfaces modernas.
-            Apaixonado por código limpo, cloud e sistemas distribuídos — entregando valor real em cada linha.
+            Transformo requisitos de negócio em arquiteturas que sustentam crescimento. Lidero decisões técnicas que equilibram velocidade de entrega, escalabilidade e custo — porque software bom é o que resolve o problema certo, no tempo certo, sem virar dívida técnica amanhã.
           </p>
 
           <div class="hero-stats">
@@ -834,7 +1098,7 @@
               <div class="stat-label" data-i18n="hero.stat3">Empresas impactadas</div>
             </div>
             <div class="stat-card">
-              <div class="stat-num">4</div>
+              <div class="stat-num">3</div>
               <div class="stat-label" data-i18n="hero.stat4">Idiomas</div>
             </div>
           </div>
@@ -876,40 +1140,55 @@
 
       <div class="skills-grid">
 
-        <div class="skill-card fade-in">
-          <div class="skill-card-icon icon-blue">🖥️</div>
+        <div class="skill-card fade-in" style="--rgb: 59, 130, 246;">
+          <div class="skill-card-icon"><i class="ph ph-desktop"></i></div>
           <h3>Front-end</h3>
           <div class="tech-badges">
-            <span class="badge">Vue.js</span><span class="badge">React</span><span class="badge">Angular</span>
-            <span class="badge">TypeScript</span><span class="badge">jQuery</span><span class="badge">Bootstrap</span>
-            <span class="badge">Tailwind CSS</span>
+            <span class="badge"><i class="devicon-vuejs-plain"></i> Vue.js</span>
+            <span class="badge"><i class="devicon-react-original"></i> React</span>
+            <span class="badge"><i class="devicon-angularjs-plain"></i> Angular</span>
+            <span class="badge"><i class="devicon-typescript-plain"></i> TypeScript</span>
+            <span class="badge"><i class="devicon-jquery-plain"></i> jQuery</span>
+            <span class="badge"><i class="devicon-bootstrap-plain"></i> Bootstrap</span>
+            <span class="badge"><i class="devicon-tailwindcss-original"></i> Tailwind CSS</span>
           </div>
         </div>
 
-        <div class="skill-card fade-in">
-          <div class="skill-card-icon icon-purple">⚙️</div>
+        <div class="skill-card fade-in" style="--rgb: 139, 92, 246;">
+          <div class="skill-card-icon"><i class="ph ph-gear"></i></div>
           <h3>Back-end</h3>
           <div class="tech-badges">
-            <span class="badge">Python</span><span class="badge">Django</span><span class="badge">Node.js</span>
-            <span class="badge">PHP</span><span class="badge">Laravel</span>
+            <span class="badge"><i class="devicon-python-plain"></i> Python</span>
+            <span class="badge"><i class="devicon-django-plain"></i> Django</span>
+            <span class="badge"><i class="devicon-nodejs-plain"></i> Node.js</span>
+            <span class="badge"><i class="devicon-php-plain"></i> PHP</span>
+            <span class="badge"><i class="devicon-laravel-plain"></i> Laravel</span>
           </div>
         </div>
 
-        <div class="skill-card fade-in">
-          <div class="skill-card-icon icon-cyan">☁️</div>
+        <div class="skill-card fade-in" style="--rgb: 6, 182, 212;">
+          <div class="skill-card-icon"><i class="ph ph-cloud"></i></div>
           <h3 data-i18n="skills.cloud">Cloud & Infra</h3>
           <div class="tech-badges">
-            <span class="badge">AWS</span><span class="badge">Serverless</span><span class="badge">CI/CD</span>
-            <span class="badge">Microservices</span><span class="badge">Distributed Systems</span><span class="badge">FinOps</span>
+            <span class="badge"><i class="devicon-amazonwebservices-plain-wordmark"></i> AWS</span>
+            <span class="badge"><i class="ph ph-lightning"></i> Serverless</span>
+            <span class="badge"><i class="ph ph-arrows-clockwise"></i> CI/CD</span>
+            <span class="badge"><i class="ph ph-share-network"></i> Microservices</span>
+            <span class="badge"><i class="ph ph-circles-three-plus"></i> Distributed Systems</span>
+            <span class="badge"><i class="ph ph-currency-dollar"></i> FinOps</span>
           </div>
         </div>
 
-        <div class="skill-card fade-in">
-          <div class="skill-card-icon icon-green">🗄️</div>
+        <div class="skill-card fade-in" style="--rgb: 34, 197, 94;">
+          <div class="skill-card-icon"><i class="ph ph-database"></i></div>
           <h3 data-i18n="skills.data">Dados & Outros</h3>
           <div class="tech-badges">
-            <span class="badge">MySQL</span><span class="badge">Azure DevOps</span><span class="badge">Kafka/RabbitMQ</span>
-            <span class="badge">Git</span><span class="badge">Clean Architecture</span><span class="badge">SOLID</span>
+            <span class="badge"><i class="devicon-mysql-plain"></i> MySQL</span>
+            <span class="badge"><i class="devicon-azure-plain"></i> Azure DevOps</span>
+            <span class="badge"><i class="devicon-apachekafka-original"></i> Kafka/RabbitMQ</span>
+            <span class="badge"><i class="devicon-git-plain"></i> Git</span>
+            <span class="badge"><i class="ph ph-broom"></i> Clean Architecture</span>
+            <span class="badge"><i class="ph ph-cube"></i> SOLID</span>
           </div>
         </div>
 
@@ -920,7 +1199,6 @@
         <div class="lang-grid">
           <div class="lang-item"><span class="lang-flag">🇧🇷</span><div><div class="lang-name" data-i18n="lang.pt">Português</div><div class="lang-level" data-i18n="lang.pt.level">Nativo</div></div></div>
           <div class="lang-item"><span class="lang-flag">🇺🇸</span><div><div class="lang-name" data-i18n="lang.en">Inglês</div><div class="lang-level" data-i18n="lang.en.level">Profissional</div></div></div>
-          <div class="lang-item"><span class="lang-flag">🇪🇸</span><div><div class="lang-name" data-i18n="lang.es">Espanhol</div><div class="lang-level" data-i18n="lang.es.level">Intermediário</div></div></div>
           <div class="lang-item"><span class="lang-flag">🇮🇹</span><div><div class="lang-name" data-i18n="lang.it">Italiano</div><div class="lang-level" data-i18n="lang.it.level">Intermediário</div></div></div>
         </div>
       </div>
@@ -941,32 +1219,31 @@
       </div>
 
       <div class="projects-grid">
-        <!-- Ultra Pinturas — Landing Page -->
-        <div class="project-card proj-accent-navy fade-in">
-          <div class="proj-header">
-            <div class="proj-icon icon-blue">🌐</div>
-            <a href="https://ultrapinturasespeciais.com.br/" target="_blank" rel="noopener" class="proj-company" style="text-decoration:none;cursor:pointer;transition:color .2s;" onmouseover="this.style.color='var(--accent2)'" onmouseout="this.style.color=''">
-              ultrapinturasespeciais.com.br ↗
+        <!-- Ultra Pinturas — Landing Page (FEATURED) -->
+        <div class="project-card featured fade-in" style="--rgb: 28, 78, 128; --gradient-proj: linear-gradient(90deg, #1c4e80, #3b82f6);">
+          <div class="proj-gradient-bar"></div>
+          <div class="proj-preview">
+            <a href="https://ultrapinturasespeciais.com.br/" target="_blank" rel="noopener">
+              <img src="ultra-pinturas-preview.png" alt="Ultra Pinturas Especiais - Preview do site" loading="lazy" />
             </a>
           </div>
-          <div class="proj-title" data-i18n="proj.p7.title">Landing Page — Ultra Pinturas Especiais</div>
-          <div class="proj-desc" data-i18n="proj.p7.desc">
-            Site institucional completo para empresa de pintura industrial, automotiva e plásticos técnicos com mais de 20 anos de mercado. Carrossel de imagens, galeria, formulário de contato, integração com WhatsApp e mapa interativo.
-          </div>
-          <div class="proj-metrics">
-            <span class="proj-metric" data-i18n="proj.p7.m1">4.8★ · 127 avaliações</span>
-            <span class="proj-metric" data-i18n="proj.p7.m2">20+ anos de empresa</span>
-          </div>
-          <div class="proj-tech">
-            <span class="badge">HTML</span><span class="badge">CSS</span><span class="badge">JavaScript</span>
-            <span class="badge">WhatsApp API</span><span class="badge">Responsive</span>
+          <div class="proj-featured-body">
+            <span class="proj-type" data-i18n="proj.p7.type">Landing Page</span>
+            <div class="proj-featured-title">
+              <a href="https://ultrapinturasespeciais.com.br/" target="_blank" rel="noopener" data-i18n="proj.p7.featured_title">Ultra Pinturas Especiais</a>
+              <span class="proj-link-arrow">↗</span>
+            </div>
+            <div class="proj-featured-desc" data-i18n="proj.p7.desc">
+              Landing page institucional para empresa de pinturas especiais com foco em conversão. Carrossel de imagens, galeria, formulário de contato, integração com WhatsApp e mapa interativo.
+            </div>
           </div>
         </div>
 
         <!-- Ponto Eletrônico -->
-        <div class="project-card proj-accent-blue fade-in">
+        <div class="project-card fade-in" style="--rgb: 59, 130, 246; --gradient-proj: linear-gradient(90deg, #3b82f6, #06b6d4);">
+          <div class="proj-gradient-bar"></div>
           <div class="proj-header">
-            <div class="proj-icon icon-blue">⏱️</div>
+            <div class="proj-icon">⏱️</div>
             <span class="proj-company">tiSul</span>
           </div>
           <div class="proj-title" data-i18n="proj.p1.title">Sistema de Controle de Ponto Eletrônico</div>
@@ -974,18 +1251,16 @@
             Plataforma web completa para gestão de ponto de funcionários e empresas, com geração de relatórios, integração com folha de pagamento e painel administrativo multi-tenant.
           </div>
           <div class="proj-metrics">
-            <span class="proj-metric" data-i18n="proj.p1.m1">50+ empresas</span>
-            <span class="proj-metric" data-i18n="proj.p1.m2">200 municípios</span>
-          </div>
-          <div class="proj-tech">
-            <span class="badge">TypeScript</span><span class="badge">Node.js</span><span class="badge">MySQL</span><span class="badge">React</span>
+            <span class="proj-metric" data-i18n="proj.p1.m1" data-count="50" data-suffix="+ empresas">50+ empresas</span>
+            <span class="proj-metric" data-i18n="proj.p1.m2" data-count="200" data-suffix=" municípios">200 municípios</span>
           </div>
         </div>
 
         <!-- Relatórios Gov -->
-        <div class="project-card proj-accent-purple fade-in">
+        <div class="project-card fade-in" style="--rgb: 139, 92, 246; --gradient-proj: linear-gradient(90deg, #8b5cf6, #3b82f6);">
+          <div class="proj-gradient-bar"></div>
           <div class="proj-header">
-            <div class="proj-icon icon-purple">📊</div>
+            <div class="proj-icon">📊</div>
             <span class="proj-company">tiSul</span>
           </div>
           <div class="proj-title" data-i18n="proj.p2.title">Ferramenta Web de Relatórios Governamentais</div>
@@ -996,15 +1271,13 @@
             <span class="proj-metric" data-i18n="proj.p2.m1">Governo Brasileiro</span>
             <span class="proj-metric" data-i18n="proj.p2.m2">Múltiplos municípios</span>
           </div>
-          <div class="proj-tech">
-            <span class="badge">Python</span><span class="badge">Django</span><span class="badge">MySQL</span>
-          </div>
         </div>
 
         <!-- Controle de Acesso -->
-        <div class="project-card proj-accent-cyan fade-in">
+        <div class="project-card fade-in" style="--rgb: 6, 182, 212; --gradient-proj: linear-gradient(90deg, #06b6d4, #22d3ee);">
+          <div class="proj-gradient-bar"></div>
           <div class="proj-header">
-            <div class="proj-icon icon-cyan">🏢</div>
+            <div class="proj-icon">🏢</div>
             <span class="proj-company">tiSul</span>
           </div>
           <div class="proj-title" data-i18n="proj.p3.title">Sistema de Controle de Acesso Corporativo</div>
@@ -1012,17 +1285,15 @@
             Plataforma web para gestão de visitantes e controle de acesso em edifícios corporativos, com registro em tempo real e relatórios de fluxo de pessoas.
           </div>
           <div class="proj-metrics">
-            <span class="proj-metric" data-i18n="proj.p3.m1">50+ edifícios</span>
-          </div>
-          <div class="proj-tech">
-            <span class="badge">React</span><span class="badge">Node.js</span><span class="badge">MySQL</span>
+            <span class="proj-metric" data-i18n="proj.p3.m1" data-count="50" data-suffix="+ edifícios">50+ edifícios</span>
           </div>
         </div>
 
         <!-- Reconhecimento Facial -->
-        <div class="project-card proj-accent-green fade-in">
+        <div class="project-card fade-in" style="--rgb: 34, 197, 94; --gradient-proj: linear-gradient(90deg, #22c55e, #06b6d4);">
+          <div class="proj-gradient-bar"></div>
           <div class="proj-header">
-            <div class="proj-icon icon-green">📱</div>
+            <div class="proj-icon">📱</div>
             <span class="proj-company">tiSul</span>
           </div>
           <div class="proj-title" data-i18n="proj.p4.title">App Mobile de Reconhecimento Facial</div>
@@ -1030,36 +1301,33 @@
             Aplicativo mobile para controle de acesso seguro em escolas via reconhecimento facial, eliminando filas e aumentando a segurança nos portões.
           </div>
           <div class="proj-metrics">
-            <span class="proj-metric" data-i18n="proj.p4.m1">30 escolas</span>
+            <span class="proj-metric" data-i18n="proj.p4.m1" data-count="30" data-suffix=" escolas">30 escolas</span>
             <span class="proj-metric" data-i18n="proj.p4.m2">-90% entrada manual</span>
           </div>
-          <div class="proj-tech">
-            <span class="badge">Flutter</span><span class="badge">Python</span><span class="badge">Django</span>
-          </div>
         </div>
 
-        <!-- Migração Delphi -->
-        <div class="project-card proj-accent-orange fade-in">
+        <!-- CRM + N8N Automations -->
+        <div class="project-card fade-in" style="--rgb: 234, 76, 60; --gradient-proj: linear-gradient(90deg, #ea4c3c, #f59e0b);">
+          <div class="proj-gradient-bar"></div>
           <div class="proj-header">
-            <div class="proj-icon icon-purple">🔄</div>
-            <span class="proj-company">tiSul</span>
+            <div class="proj-icon"><img src="https://n8n.io/favicon.ico" alt="n8n" style="width:24px;height:24px;border-radius:4px;" /></div>
+            <span class="proj-company">Freelancer</span>
           </div>
-          <div class="proj-title" data-i18n="proj.p5.title">Migração Desktop → Web (Delphi → Python)</div>
+          <div class="proj-title" data-i18n="proj.p5.title">CRM + Ecossistema de Automações N8N</div>
           <div class="proj-desc" data-i18n="proj.p5.desc">
-            Modernização completa de sistema legado em Delphi para aplicação web com Python, preservando regras de negócio e melhorando a experiência do usuário e manutenibilidade.
+            Sistema CRM completo integrado a um ecossistema de automações com N8N, automatizando fluxos de comunicação, follow-ups e gestão de leads com webhooks e integrações multi-plataforma.
           </div>
           <div class="proj-metrics">
-            <span class="proj-metric" data-i18n="proj.p5.m1">Sistema legado modernizado</span>
-          </div>
-          <div class="proj-tech">
-            <span class="badge">Python</span><span class="badge">Django</span><span class="badge">Delphi</span>
+            <span class="proj-metric" data-i18n="proj.p5.m1">Automação end-to-end</span>
+            <span class="proj-metric" data-i18n="proj.p5.m2">Multi-plataforma</span>
           </div>
         </div>
 
-        <!-- Ultra Pinturas -->
-        <div class="project-card proj-accent-pink fade-in">
+        <!-- Ultra Pinturas — Sistema -->
+        <div class="project-card fade-in" style="--rgb: 236, 72, 153; --gradient-proj: linear-gradient(90deg, #ec4899, #8b5cf6);">
+          <div class="proj-gradient-bar"></div>
           <div class="proj-header">
-            <div class="proj-icon icon-cyan">🎨</div>
+            <div class="proj-icon">🎨</div>
             <span class="proj-company">Ultra Pinturas</span>
           </div>
           <div class="proj-title" data-i18n="proj.p6.title">Sistema de Gestão para Empresa de Pinturas</div>
@@ -1069,9 +1337,6 @@
           <div class="proj-metrics">
             <span class="proj-metric" data-i18n="proj.p6.m1">Estoque + CRM</span>
             <span class="proj-metric" data-i18n="proj.p6.m2">Freelancer</span>
-          </div>
-          <div class="proj-tech">
-            <span class="badge">Python</span><span class="badge">Django</span><span class="badge">MySQL</span>
           </div>
         </div>
       </div>
@@ -1262,6 +1527,11 @@
     <p data-i18n="footer.text">Desenvolvido por <strong>Gustavo Cavasotto Potrich</strong> · 2025</p>
   </footer>
 
+  <!-- Bibliotecas de Animação -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
   <script>
     /* ═══════════════════════════════════════
        TRANSLATIONS
@@ -1275,7 +1545,7 @@
         'nav.contact': 'Contato',
 
         'hero.title': 'Engenheiro de Software',
-        'hero.desc': 'Especialista em arquiteturas escaláveis, APIs de alta performance e interfaces modernas. Apaixonado por código limpo, cloud e sistemas distribuídos — entregando valor real em cada linha.',
+        'hero.desc': 'Transformo requisitos de negócio em arquiteturas que sustentam crescimento. Lidero decisões técnicas que equilibram velocidade de entrega, escalabilidade e custo — porque software bom é o que resolve o problema certo, no tempo certo, sem virar dívida técnica amanhã.',
         'hero.stat1': 'Anos de experiência',
         'hero.stat2': 'Empresas',
         'hero.stat3': 'Empresas impactadas',
@@ -1293,7 +1563,6 @@
 
         'lang.pt': 'Português', 'lang.pt.level': 'Nativo',
         'lang.en': 'Inglês',    'lang.en.level': 'Profissional',
-        'lang.es': 'Espanhol',  'lang.es.level': 'Intermediário',
         'lang.it': 'Italiano',  'lang.it.level': 'Intermediário',
 
         'proj.eyebrow': 'Portfólio',
@@ -1317,17 +1586,17 @@
         'proj.p4.desc': 'Aplicativo mobile para controle de acesso seguro em escolas via reconhecimento facial, eliminando filas e aumentando a segurança nos portões.',
         'proj.p4.m1': '30 escolas', 'proj.p4.m2': '-90% entrada manual',
 
-        'proj.p5.title': 'Migração Desktop → Web (Delphi → Python)',
-        'proj.p5.desc': 'Modernização completa de sistema legado em Delphi para aplicação web com Python, preservando regras de negócio e melhorando a experiência do usuário e manutenibilidade.',
-        'proj.p5.m1': 'Sistema legado modernizado',
+        'proj.p5.title': 'CRM + Ecossistema de Automações N8N',
+        'proj.p5.desc': 'Sistema CRM completo integrado a um ecossistema de automações com N8N, automatizando fluxos de comunicação, follow-ups e gestão de leads com webhooks e integrações multi-plataforma.',
+        'proj.p5.m1': 'Automação end-to-end', 'proj.p5.m2': 'Multi-plataforma',
 
         'proj.p6.title': 'Sistema de Gestão para Empresa de Pinturas',
         'proj.p6.desc': 'Suite web com módulo de controle de estoque de tintas e módulo de CRM para gestão de clientes, contatos e agendamentos — entregue como freelancer.',
         'proj.p6.m1': 'Estoque + CRM', 'proj.p6.m2': 'Freelancer',
 
-        'proj.p7.title': 'Landing Page — Ultra Pinturas Especiais',
-        'proj.p7.desc': 'Site institucional completo para empresa de pintura industrial, automotiva e plásticos técnicos com mais de 20 anos de mercado. Carrossel de imagens, galeria, formulário de contato, integração com WhatsApp e mapa interativo.',
-        'proj.p7.m1': '4.8★ · 127 avaliações', 'proj.p7.m2': '20+ anos de empresa',
+        'proj.p7.type': 'Landing Page',
+        'proj.p7.featured_title': 'Ultra Pinturas Especiais',
+        'proj.p7.desc': 'Landing page institucional para empresa de pinturas especiais com foco em conversão. Carrossel de imagens, galeria, formulário de contato, integração com WhatsApp e mapa interativo.',
 
         'exp.eyebrow': 'Carreira',
         'exp.title1': 'Experiência',
@@ -1384,7 +1653,7 @@
 
         'hero.available': 'Open to opportunities',
         'hero.title': 'Software Engineer',
-        'hero.desc': 'Specialist in scalable architectures, high-performance APIs and modern interfaces. Passionate about clean code, cloud and distributed systems — delivering real value in every line.',
+        'hero.desc': 'I turn business requirements into architectures that sustain growth. I lead technical decisions that balance delivery speed, scalability and cost — because good software solves the right problem, at the right time, without becoming technical debt tomorrow.',
         'hero.stat1': 'Years of experience',
         'hero.stat2': 'Companies',
         'hero.stat3': 'Companies impacted',
@@ -1426,17 +1695,17 @@
         'proj.p4.desc': 'Mobile application for secure school gate access via facial recognition, eliminating queues and improving security at entrances.',
         'proj.p4.m1': '30 schools', 'proj.p4.m2': '-90% manual check-in',
 
-        'proj.p5.title': 'Desktop → Web Migration (Delphi → Python)',
-        'proj.p5.desc': 'Full modernization of a legacy Delphi desktop system into a Python web application, preserving business rules while improving UX and maintainability.',
-        'proj.p5.m1': 'Legacy system modernized',
+        'proj.p5.title': 'CRM + N8N Automation Ecosystem',
+        'proj.p5.desc': 'Full CRM system integrated with an N8N automation ecosystem, automating communication flows, follow-ups and lead management with webhooks and multi-platform integrations.',
+        'proj.p5.m1': 'End-to-end automation', 'proj.p5.m2': 'Multi-platform',
 
         'proj.p6.title': 'Paint Company Management Suite',
         'proj.p6.desc': 'Web suite with a paint inventory control module and a CRM module for managing clients, contacts and appointments — delivered as a freelancer.',
         'proj.p6.m1': 'Inventory + CRM', 'proj.p6.m2': 'Freelancer',
 
-        'proj.p7.title': 'Landing Page — Ultra Pinturas Especiais',
-        'proj.p7.desc': 'Full institutional website for an industrial, automotive and technical plastics painting company with 20+ years in the market. Image carousel, gallery, contact form, WhatsApp integration and interactive map.',
-        'proj.p7.m1': '4.8★ · 127 reviews', 'proj.p7.m2': '20+ year company',
+        'proj.p7.type': 'Landing Page',
+        'proj.p7.featured_title': 'Ultra Pinturas Especiais',
+        'proj.p7.desc': 'Institutional landing page for a special painting company focused on conversion. Image carousel, gallery, contact form, WhatsApp integration and interactive map.',
 
         'exp.eyebrow': 'Career',
         'exp.title1': 'Professional',
@@ -1509,12 +1778,212 @@
       }, 150);
     }
 
-    /* ─── Fade-in on scroll ─── */
-    const observer = new IntersectionObserver(
-      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-    );
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    /* ─── Advanced Animations (GSAP & Three.js) ─── */
+    gsap.registerPlugin(ScrollTrigger);
+
+    // 1. Custom Cursor
+    const cursorDot = document.getElementById('cursor-dot');
+    const cursorOutline = document.getElementById('cursor-outline');
+    gsap.set(cursorDot, { xPercent: -50, yPercent: -50 });
+    gsap.set(cursorOutline, { xPercent: -50, yPercent: -50 });
+
+    window.addEventListener('mousemove', (e) => {
+      gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0.05 });
+      gsap.to(cursorOutline, { x: e.clientX, y: e.clientY, duration: 0.15, ease: "power2.out" });
+    });
+
+    const clickables = document.querySelectorAll('a, button, .btn, .project-card, .skill-card, .lang-btn');
+    clickables.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        gsap.to(cursorOutline, { scale: 1.5, backgroundColor: "rgba(6, 182, 212, 0.1)", duration: 0.2 });
+      });
+      el.addEventListener('mouseleave', () => {
+        gsap.to(cursorOutline, { scale: 1, backgroundColor: "transparent", duration: 0.2 });
+      });
+    });
+
+    // 2. Three.js Particles Background
+    const initThreeJS = () => {
+      const canvas = document.getElementById('webgl-canvas');
+      if (!canvas || typeof THREE === 'undefined') return;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const particlesGeometry = new THREE.BufferGeometry();
+      const particlesCount = window.innerWidth < 768 ? 300 : 800;
+      const posArray = new Float32Array(particlesCount * 3);
+      for(let i = 0; i < particlesCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 20;
+      }
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+      
+      const material = new THREE.PointsMaterial({
+        size: 0.03,
+        color: 0x06b6d4,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const particlesMesh = new THREE.Points(particlesGeometry, material);
+      scene.add(particlesMesh);
+      camera.position.z = 4;
+
+      let mouseX = 0, mouseY = 0;
+      document.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX / window.innerWidth) - 0.5;
+        mouseY = (event.clientY / window.innerHeight) - 0.5;
+      });
+
+      const clock = new THREE.Clock();
+      const animate = () => {
+        requestAnimationFrame(animate);
+        const elapsedTime = clock.getElapsedTime();
+        particlesMesh.rotation.y = elapsedTime * 0.03;
+        particlesMesh.rotation.x = elapsedTime * 0.01;
+        
+        camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.05;
+        camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+        
+        renderer.render(scene, camera);
+      };
+      animate();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    };
+    initThreeJS();
+
+    // 3. Magnetic Elements (Apenas Desktop)
+    if (window.matchMedia("(pointer: fine)").matches) {
+      const magneticElements = document.querySelectorAll('.btn, .lang-btn, .contact-link');
+      magneticElements.forEach(elem => {
+        elem.addEventListener('mousemove', (e) => {
+          const rect = elem.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          gsap.to(elem, { x: x * 0.3, y: y * 0.3, duration: 0.4, ease: "power2.out" });
+        });
+        elem.addEventListener('mouseleave', () => {
+          gsap.to(elem, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)", clearProps: "transform" });
+        });
+      });
+
+      // 4. 3D Tilt on Project Cards
+      const projectCards = document.querySelectorAll('.project-card');
+      projectCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = ((y - centerY) / centerY) * -8;
+          const rotateY = ((x - centerX) / centerX) * 8;
+          
+          gsap.to(card, {
+            rotateX: rotateX,
+            rotateY: rotateY,
+            transformPerspective: 1000,
+            duration: 0.4,
+            ease: "power2.out"
+          });
+        });
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.7, ease: "power2.out", clearProps: "transform" });
+        });
+      });
+
+      // 6. Spotlight Glow on Skill Cards
+      const skillsGrid = document.querySelector('.skills-grid');
+      const skillCards = document.querySelectorAll('.skill-card');
+      if (skillsGrid) {
+        skillsGrid.addEventListener('mousemove', (e) => {
+          skillCards.forEach(card => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+          });
+        });
+      }
+
+      // 7. Spotlight Glow on Project Cards
+      const projGrid = document.querySelector('.projects-grid');
+      const projCards = document.querySelectorAll('.project-card');
+      if (projGrid) {
+        projGrid.addEventListener('mousemove', (e) => {
+          projCards.forEach(card => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+          });
+        });
+      }
+    }
+
+    // 8. Animated Count-Up for Project Metrics
+    document.querySelectorAll('.proj-metric[data-count]').forEach(metric => {
+      const target = parseInt(metric.dataset.count, 10);
+      const suffix = metric.dataset.suffix || '';
+      const originalText = metric.textContent;
+
+      ScrollTrigger.create({
+        trigger: metric,
+        start: "top 90%",
+        once: true,
+        onEnter: () => {
+          const counter = { val: 0 };
+          gsap.to(counter, {
+            val: target,
+            duration: 1.8,
+            ease: "power2.out",
+            onUpdate: () => {
+              metric.textContent = Math.floor(counter.val) + suffix;
+            }
+          });
+        }
+      });
+    });
+
+    // 5. GSAP Scroll & Hero Animations
+    const tlHero = gsap.timeline();
+    tlHero.from("nav", { y: -20, opacity: 0, duration: 0.8, ease: "power3.out", clearProps: "all" })
+          .from(".hero-name", { y: 40, opacity: 0, duration: 0.8, ease: "power3.out", clearProps: "all" }, "-=0.4")
+          .from(".hero-title", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out", clearProps: "all" }, "-=0.6")
+          .from(".hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out", clearProps: "all" }, "-=0.6")
+          .from(".hero-stats .stat-card", { y: 20, opacity: 0, duration: 0.6, stagger: 0.1, ease: "power3.out", clearProps: "transform" }, "-=0.6")
+          .from(".hero-cta .btn", { y: 20, opacity: 0, duration: 0.6, stagger: 0.1, ease: "back.out(1.7)", clearProps: "transform" }, "-=0.4")
+          .from(".hero-photo", { scale: 0.8, opacity: 0, duration: 1, ease: "power3.out", clearProps: "all" }, "-=1.2");
+
+    // Animate all sections with .fade-in on scroll
+    gsap.utils.toArray('.fade-in').forEach(elem => {
+      gsap.fromTo(elem, 
+        { opacity: 0, y: 30 },
+        {
+          scrollTrigger: {
+            trigger: elem,
+            start: "top 85%",
+            toggleActions: "play none none none"
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          clearProps: "transform"
+        }
+      );
+    });
 
     /* ─── Nav active highlight ─── */
     const sections = document.querySelectorAll('section[id]');
